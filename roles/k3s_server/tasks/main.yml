@@ -103,9 +103,13 @@
             flat: true
 
         - name: Change server address in kubeconfig on control node
-          ansible.builtin.shell: KUBECONFIG={{ kubeconfig }} kubectl config set-cluster default --server=https://{{ api_endpoint }}:{{ api_port }}
+          ansible.builtin.shell: |
+            KUBECONFIG={{ kubeconfig }} kubectl config set-cluster default --server=https://{{ api_endpoint }}:{{ api_port }}
           delegate_to: 127.0.0.1
           become: false
+          register: csa_result
+          changed_when:
+            - csa_result.rc == 0
 
         - name: Setup kubeconfig k3s-ansible context on control node
           when: kubeconfig != "~/.kube/config"
